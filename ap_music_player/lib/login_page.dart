@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ap_music_player/home_page.dart';
 
+import 'User.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -8,12 +10,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
+  final userNameController = TextEditingController();
   final passwordController = TextEditingController();
 
   @override
   void dispose() {
-    emailController.dispose();
+    userNameController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -22,6 +24,8 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState!.validate()) {
       // Show dialog for now
       Navigator.pushReplacementNamed(context, '/home');
+      User loginUser = new User(username: userNameController.text, password: passwordController.text);
+      sendLoginData(loginUser);
       // showDialog(
       //   context: context,
       //   builder: (_) => AlertDialog(
@@ -45,10 +49,10 @@ class _LoginPageState extends State<LoginPage> {
               Text("Welcome Back!", style: Theme.of(context).textTheme.headlineMedium),
               SizedBox(height: 24),
               TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                controller: userNameController,
+                decoration: InputDecoration(labelText: 'Username'),
                 validator: (value) =>
-                value == null || value.isEmpty ? 'Enter your email' : null,
+                value == null || value.isEmpty ? 'Enter your email or phone number' : null,
               ),
               SizedBox(height: 12),
               TextFormField(

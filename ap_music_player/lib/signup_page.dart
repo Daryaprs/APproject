@@ -7,13 +7,13 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
+  final userNameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
-    emailController.dispose();
+    userNameController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
@@ -26,7 +26,7 @@ class _SignupPageState extends State<SignupPage> {
         context: context,
         builder: (_) => AlertDialog(
           title: Text('Signup Success'),
-          content: Text('Account created for ${emailController.text}!'),
+          content: Text('Account created for ${userNameController.text}!'),
         ),
       );
     }
@@ -45,10 +45,10 @@ class _SignupPageState extends State<SignupPage> {
               Text("Create Account", style: Theme.of(context).textTheme.headlineMedium),
               SizedBox(height: 24),
               TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                controller: userNameController,
+                decoration: InputDecoration(labelText: 'Username'),
                 validator: (value) =>
-                value == null || value.isEmpty ? 'Enter your email' : null,
+                value == null || value.isEmpty ? 'Enter your email or phone number' : null,
               ),
               SizedBox(height: 12),
               TextFormField(

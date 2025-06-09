@@ -32,7 +32,4 @@ void sendLoginData(User user) async {
     print("Socket error: $e");
   }
 }
-// void main() {
-//   User loginUser = User(username: "john_doe", password: "123456");
-//   sendLoginData(loginUser);
-// }
+

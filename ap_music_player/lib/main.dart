@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Login Signup Demo',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
-        useMaterial3: true, // Optional: for Material 3
+        useMaterial3: true,
       ),
       initialRoute: '/',
       routes: {

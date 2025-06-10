@@ -1,0 +1,53 @@
+import java.io.*;
+import java.net.*;
+import com.google.gson.*;
+
+public class ClientHandler extends Thread {
+    private final Socket socket;
+    private final DataBaseHandler db;
+
+    public ClientHandler(Socket socket, DataBaseHandler db) {
+        this.socket = socket;
+        this.db = db;
+    }
+
+    @Override
+    public void run() {
+        try (
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
+        ) {
+            String request;
+            while ((request = reader.readLine()) != null) {
+                JsonObject json = JsonParser.parseString(request).getAsJsonObject();
+                String type = json.get("type").getAsString();
+
+                if (type.equals("signup")) {
+                    String user = json.get("username").getAsString();
+                    String pass = json.get("password").getAsString();
+                    boolean result = db.addUser(user, pass);
+                    writer.println(result ? "signup_success" : "signup_fail");
+                } else if (type.equals("login")) {
+                    String user = json.get("username").getAsString();
+                    String pass = json.get("password").getAsString();
+                    boolean result = db.validateUser(user, pass);
+                    writer.println(result ? "login_success" : "login_fail");
+
+                }else if (type.equals("delete")) {
+                    String user = json.get("username").getAsString();
+                    boolean result = db.deleteUser(user);
+                    writer.println(result ? "delete_success" : "delete_fail");
+                }else if (type.equals("change_password")) {
+                    String user = json.get("username").getAsString();
+                    String newPass = json.get("new_password").getAsString();
+                    boolean result = db.changePassword(user, newPass);
+                    writer.println(result ? "change_success" : "change_fail");
+                }else {
+                    writer.println("unknown_command");
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Client disconnected");
+        }
+    }
+}

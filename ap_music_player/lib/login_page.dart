@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ap_music_player/home_page.dart';
-
 import 'User.dart';
 
 class LoginPage extends StatefulWidget {
@@ -122,7 +121,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            showToast('نام کاربری را وارد کنید');
+                            showToast('Please enter your username!');
                             return '';
                           }
                           else
@@ -150,7 +149,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         validator: (value) {
                         if(completeUserName){
                           if (value == null || value.isEmpty) {
-                            showToast('رمز خود را وارد کنید');
+                            showToast('Please enter your password!');
                             return '';
                           }
                         }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ap_music_player/home_page.dart';
+import 'User.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -54,20 +56,9 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
   //این تابع تغییرات نیاز دارد
   void _signup() {
     if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          backgroundColor: Colors.black,
-          title: Text('Signup Success', style: TextStyle(color: Colors.redAccent)),
-          content: Text('Account created for ${userNameController.text}!', style: TextStyle(color: Colors.white)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK', style: TextStyle(color: Colors.redAccent)),
-            )
-          ],
-        ),
-      );
+      Navigator.pushReplacementNamed(context, '/home');
+      User loginUser = User(username: userNameController.text, password: passwordController.text);
+      sendLoginData(loginUser);
     }
   }
 
@@ -120,10 +111,10 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                       decoration: _inputDecoration('Username'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          showToast('یک نام کاربری برای خود وارد کنید');
+                          showToast('Please enter a username!');
                           return '';
                         } else if (!(phoneRegex.hasMatch(value) || emailRegex.hasMatch(value))) {
-                          showToast('نام کاریری فقظ یاید شماره تلفن یا ایمیل باشد');
+                          showToast('Username must be a valid email or phone number.');
                           return '';
                         } else {
                           completeUserName = true;
@@ -140,13 +131,13 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                       validator: (value) {
                         if (completeUserName) {
                           if ((value == null || value.length < 8)) {
-                            showToast('رمز عبور باید حداقل ۸ کاراکتر باشد');
+                            showToast('Password must be at least 8 characters long.');
                             return '';
                           } else if (value.contains(userNameController.text)) {
-                            showToast('رمز عبور نباید شامل نام کاربری باشد');
+                            showToast('Password should not contain your username!');
                             return '';
                           } else if (!passwordRegex.hasMatch(value)) {
-                            showToast('رمز عبور باید شامل حروف بزرگ و کوچک و ارقام باشد');
+                            showToast('Password must include uppercase and lowercase letters and numbers.');
                             return '';
                           } else
                             completePass = true;
@@ -161,9 +152,11 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                       obscureText: true,
                       decoration: _inputDecoration('Confirm Password'),
                       validator: (value) {
-                        if (completePass && value != passwordController.text) {
-                          showToast('تکرار رمز صحیح نیست');
-                          return '';
+                        if(completePass && completeUserName){
+                          if (value != passwordController.text) {
+                            showToast('Passwords do not match!');
+                            return '';
+                          }
                         }
                         return null;
                       },

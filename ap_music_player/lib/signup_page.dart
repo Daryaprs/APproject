@@ -56,13 +56,29 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
   //این تابع تغییرات نیاز دارد
   void _signup() {
     if (_formKey.currentState!.validate()) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text('Signup Success', style: TextStyle(color: Colors.redAccent)),
+          content: Text('Account created for ${userNameController.text}!', style: TextStyle(color: Colors.white)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK', style: TextStyle(color: Colors.redAccent)),
+            )
+          ],
+        ),
+      );
+      User signupUser = User(username: userNameController.text, password: passwordController.text);
+      sendSignupData(signupUser);
       Navigator.pushReplacementNamed(context, '/home');
       User loginUser = User(username: userNameController.text, password: passwordController.text);
       sendLoginData(loginUser);
     }
-  }
+    }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,

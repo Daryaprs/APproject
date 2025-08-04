@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ap_music_player/home_page.dart';
+import 'package:ap_music_player/Home_page.dart';
 import 'User.dart';
 
 class SignupPage extends StatefulWidget {

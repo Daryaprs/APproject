@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ap_music_player/Home_page.dart';
+import 'auth_service.dart';
 import 'User.dart';
 
 class LoginPage extends StatefulWidget {
+  final AuthService authService;
+  LoginPage({required this.authService});
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -48,13 +52,30 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   //این تابع به تغییرات نیاز دارد
-  void _login() {
-    if (_formKey.currentState!.validate()) {
+  void _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final user = User(
+      username: userNameController.text.trim(),
+      password: passwordController.text,
+    );
+
+    String result = await widget.authService.login(user);
+
+
+    if (result == 'login_success') {
       Navigator.pushReplacementNamed(context, '/home');
-      User loginUser = User(username: userNameController.text, password: passwordController.text);
-      sendLoginData(loginUser);
+    } else if (result == 'login_fail') {
+      showToast('Invalid username or password');
+    } else if (result == 'timeout') {
+      showToast('Server timeout. Try again.');
+    } else {
+      showToast('Network error.');
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {

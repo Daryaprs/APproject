@@ -42,7 +42,8 @@ public class ClientHandler extends Thread {
                     String newPass = json.get("new_password").getAsString();
                     boolean result = db.changePassword(user, newPass);
                     writer.println(result ? "change_success" : "change_fail");
-                }else {
+                }
+                else {
                     writer.println("unknown_command");
                 }
             }

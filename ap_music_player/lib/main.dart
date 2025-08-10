@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'auth_service.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
 import 'home_page.dart';
@@ -8,6 +9,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  final authService = AuthService(host: '10.0.2.2', port: 3000);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,8 +20,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginPage(),
-        '/signup': (context) => SignupPage(),
+        '/': (context) => LoginPage(authService: authService),
+        '/signup': (context) => SignupPage(authService: authService),
         '/home': (context) => HomePage(),
       },
     );

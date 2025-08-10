@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'auth_service.dart';
 import 'login_page.dart';
 import 'user_info_page.dart';
 import 'playlist_page.dart';
@@ -67,9 +68,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _logout() {
+    final authService = AuthService(host: '10.0.2.2', port: 3000);
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
+      MaterialPageRoute(builder: (context) => LoginPage(authService: authService)),
     );
   }
 

@@ -5,6 +5,9 @@ import 'user_info_page.dart';
 import 'playlist_page.dart';
 
 class HomePage extends StatefulWidget {
+  final AuthService authService;
+  HomePage({required this.authService});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -35,8 +38,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _addMusicFromServer() {
-    List<String> serverSongs = ["موزیک سروری 1", "موزیک سروری 2"];
+  void _addMusicFromServer() async{
+    List<String> serverSongs = await widget.authService.fetchServerSongNames() ;
 
     showModalBottomSheet(
       context: context,

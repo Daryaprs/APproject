@@ -43,6 +43,22 @@ public class ClientHandler extends Thread {
                     boolean result = db.changePassword(user, newPass);
                     writer.println(result ? "change_success" : "change_fail");
                 }
+                else if(type.equals("get_music_list")){
+                    File musicFolder = new File("Musics");
+                    String[] files = musicFolder.list((dir, name) -> name.endsWith(".mp3"));
+                    if (files == null) files = new String[0];
+
+                    JsonObject response = new JsonObject();
+                    response.addProperty("status", "ok");
+                    JsonArray list = new JsonArray();
+                    for (String fileName : files) {
+                        list.add(fileName);
+                    }
+                    response.add("music_list", list);
+
+                    writer.println(response.toString());
+                    writer.flush();
+                }
                 else {
                     writer.println("unknown_command");
                 }

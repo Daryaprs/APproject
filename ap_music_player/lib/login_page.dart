@@ -74,9 +74,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     }
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     final blueAccent = Colors.blueAccent.shade700;

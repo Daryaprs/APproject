@@ -62,4 +62,40 @@ class AuthService {
       try { socket?.destroy(); } catch (_) {}
     }
   }
+
+  Future<List<String>> fetchServerSongNames({Duration timeout = const Duration(seconds: 5)}) async {
+    Socket? socket;
+    try {
+      socket = await Socket.connect(host, port).timeout(timeout);
+      final req = jsonEncode({"type": "get_music_list"});
+      socket.write("$req\n");
+      final data = await socket.first.timeout(timeout);
+      final response = jsonDecode(utf8.decode(data));
+      if (response["status"] == "ok") {
+        final list = (response["music_list"] as List).map((e) => e as String).toList();
+        return list;
+      }
+      return [];
+    } finally {
+      socket?.destroy();
+    }
+  }
+
+  Future<String?> fetchSongBase64(String fileName, {Duration timeout = const Duration(seconds: 10)}) async {
+    Socket? socket;
+    try {
+      socket = await Socket.connect(host, port).timeout(timeout);
+      final req = jsonEncode({"action": "get_music_file", "file_name": fileName});
+      socket.write("$req\n");
+      final data = await socket.first.timeout(timeout);
+      final resp = jsonDecode(utf8.decode(data));
+      if (resp["status"] == "ok") {
+        return resp["file_data"] as String;
+      }
+      return null;
+    } finally {
+      socket?.destroy();
+    }
+  }
+
 }

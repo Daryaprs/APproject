@@ -1,7 +1,16 @@
 {
-  "users": {
-    "Nilou@gmail.com": "Nilou1234",
-    "Darya1384@gmail.com": "Darya1384",
-    "Darya@gmail.com": "Darya1384"
-  }
+  "users": [
+    {
+      "username": "Darya@gmail.com",
+      "password": "Darya1384"
+    },
+    {
+      "username": "Darya1384@gmail.com",
+      "password": "Darya1384"
+    },
+    {
+      "username": "Darya1234@gmail.com",
+      "password": "Darya1234"
+    }
+  ]
 }

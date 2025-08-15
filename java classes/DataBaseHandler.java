@@ -41,9 +41,18 @@ public class DataBaseHandler {
         lock.writeLock().lock();
         try {
             JsonObject db = readDatabase();
-            JsonObject users = db.getAsJsonObject("users");
-            if (users.has(username)) return false;  // user already exists
-            users.addProperty(username, password);
+            JsonArray users = db.getAsJsonArray("users");
+            for (int i = 0; i < users.size(); i++) {
+                JsonObject user = users.get(i).getAsJsonObject();
+                if (user.get("username").getAsString().equals(username)) {
+                    return false;
+                }
+            }
+                // user already exists
+            JsonObject newUser = new JsonObject();
+            newUser.addProperty("username", username);
+            newUser.addProperty("password", password);
+            users.add(newUser);
             writeDatabase(db);
             return true;
         } finally {
@@ -55,8 +64,15 @@ public class DataBaseHandler {
         lock.readLock().lock();
         try {
             JsonObject db = readDatabase();
-            JsonObject users = db.getAsJsonObject("users");
-            return users.has(username) && users.get(username).getAsString().equals(password);
+            JsonArray users = db.getAsJsonArray("users");
+            for(int i=0; i<users.size(); i++){
+                JsonObject user = users.get(i).getAsJsonObject();
+                if(user.get("username").getAsString().equals(username)&&user.get("password").getAsString().equals(password)){
+                    System.out.println(user.get("username")+" "+user.get("password"));
+                    return true;
+                }
+            }
+            return false;
         } finally {
             lock.readLock().unlock();
         }
@@ -65,11 +81,21 @@ public class DataBaseHandler {
         lock.writeLock().lock();
         try {
             JsonObject db = readDatabase();
-            JsonObject users = db.getAsJsonObject("users");
-            if (!users.has(username)) return false;
-            users.remove(username);
-            writeDatabase(db);
-            return true;
+            JsonArray users = db.getAsJsonArray("users");
+            boolean validate = false;
+            for(int i=0; i<users.size(); i++){
+                JsonObject user = users.get(i).getAsJsonObject();
+                if(user.get("username").equals(username)){
+                    validate = true;
+                    users.remove(user);
+                    break;
+                }
+            }
+            if(validate) {
+                writeDatabase(db);
+                return true;
+            }
+            return false;
         } finally {
             lock.writeLock().unlock();
         }
@@ -78,11 +104,20 @@ public class DataBaseHandler {
         lock.writeLock().lock();
         try {
             JsonObject db = readDatabase();
-            JsonObject users = db.getAsJsonObject("users");
-            if (!users.has(username)) return false;
-            users.addProperty(username, newPassword);
-            writeDatabase(db);
-            return true;
+            JsonArray users = db.getAsJsonArray("users");
+            boolean validate = false;
+            for(int i=0; i<users.size(); i++){
+                JsonObject user = users.get(i).getAsJsonObject();
+                if(user.get("username").equals(username)){
+                    user.addProperty("password", newPassword);
+                    validate = true;
+                }
+            }
+            if(validate){
+                writeDatabase(db);
+                return true;
+            }
+            return false;
         } finally {
             lock.writeLock().unlock();
         }

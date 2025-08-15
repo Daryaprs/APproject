@@ -59,28 +59,28 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
 
   //این تابع تغییرات نیاز دارد
   void _signup() async{
+    User signupUser = User(username: userNameController.text.trim(), password: passwordController.text);
+    String signupResult = await widget.authService.signup(signupUser);
+
+    User loginUser = User(username: userNameController.text.trim(), password: passwordController.text);
+    String loginResult = await widget.authService.login(signupUser);
     if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          backgroundColor: Colors.black,
-          title: Text('Signup Success', style: TextStyle(color: Colors.redAccent)),
-          content: Text('Account created for ${userNameController.text}!', style: TextStyle(color: Colors.white)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK', style: TextStyle(color: Colors.redAccent)),
-            )
-          ],
-        ),
-      );
-      User signupUser = User(username: userNameController.text.trim(), password: passwordController.text);
-      String signupResult = await widget.authService.signup(signupUser);
-      Navigator.pushReplacementNamed(context, '/home');
-      User loginUser = User(username: userNameController.text.trim(), password: passwordController.text);
-      String loginResult = await widget.authService.login(signupUser);
       if (signupResult == 'signup_success') {
         Navigator.pushReplacementNamed(context, '/home');
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            backgroundColor: Colors.black,
+            title: Text('Signup Success', style: TextStyle(color: Colors.redAccent)),
+            content: Text('Account created for ${userNameController.text}!', style: TextStyle(color: Colors.white)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK', style: TextStyle(color: Colors.redAccent)),
+              )
+            ],
+          ),
+        );
       } else if (signupResult == 'signup_fail') {
         showToast('Signup Failed.');
       } else {
@@ -88,27 +88,6 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
       }
     }
     }
-  void _login() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final user = User(
-      username: userNameController.text.trim(),
-      password: passwordController.text,
-    );
-
-    String result = await widget.authService.login(user);
-
-
-    if (result == 'login_success') {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (result == 'login_failed') {
-      showToast('Invalid username or password');
-    } else if (result == 'timeout') {
-      showToast('Server timeout. Try again.');
-    } else {
-      showToast('Network error.');
-    }
-  }
 
     @override
   Widget build(BuildContext context) {

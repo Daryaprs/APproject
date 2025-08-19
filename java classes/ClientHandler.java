@@ -1,5 +1,8 @@
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.util.Base64;
+
 import com.google.gson.*;
 
 public class ClientHandler extends Thread {
@@ -42,8 +45,7 @@ public class ClientHandler extends Thread {
                     String newPass = json.get("new_password").getAsString();
                     boolean result = db.changePassword(user, newPass);
                     writer.println(result ? "change_success" : "change_fail");
-                }
-                else if(type.equals("get_music_list")){
+                }else if(type.equals("get_music_list")){
                     File musicFolder = new File("Musics");
                     String[] files = musicFolder.list((dir, name) -> name.endsWith(".mp3"));
                     if (files == null) files = new String[0];
@@ -58,6 +60,31 @@ public class ClientHandler extends Thread {
 
                     writer.println(response.toString());
                     writer.flush();
+                }else if(type.equals("get_music_file")){
+                    String fileName = json.get("file_name").getAsString();
+                    try {
+                        File file = new File("Musics/" + fileName);
+                        if (file.exists()) {
+                            byte[] fileBytes = Files.readAllBytes(file.toPath());
+                            String base64Data = Base64.getEncoder().encodeToString(fileBytes);
+
+                            JsonObject response = new JsonObject();
+                            response.addProperty("status", "ok");
+                            response.addProperty("file_data", base64Data);
+
+                            writer.println(response);
+                        } else {
+                            JsonObject response = new JsonObject();
+                            response.addProperty("status", "error");
+                            response.addProperty("message", "File not found");
+                            writer.println(response);
+                        }
+                    } catch (IOException e) {
+                        JsonObject response = new JsonObject();
+                        response.addProperty("status", "error");
+                        response.addProperty("message", "Could not read file");
+                        writer.println(response);
+                    }
                 }
                 else {
                     writer.println("unknown_command");

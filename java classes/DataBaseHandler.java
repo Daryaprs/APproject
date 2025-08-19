@@ -52,6 +52,8 @@ public class DataBaseHandler {
             JsonObject newUser = new JsonObject();
             newUser.addProperty("username", username);
             newUser.addProperty("password", password);
+            User user = new User(username, password);
+            Admin.getInstance().addUser(user);
             users.add(newUser);
             writeDatabase(db);
             return true;
@@ -91,6 +93,12 @@ public class DataBaseHandler {
                     break;
                 }
             }
+            for(User user: Admin.getInstance().getUsers()){
+                if(user.getUsername().equals(username)){
+                    Admin.getInstance().deleteUser(user);
+                    break;
+                }
+            }
             if(validate) {
                 writeDatabase(db);
                 return true;
@@ -111,6 +119,11 @@ public class DataBaseHandler {
                 if(user.get("username").equals(username)){
                     user.addProperty("password", newPassword);
                     validate = true;
+                }
+            }
+            for(User user: Admin.getInstance().getUsers()){
+                if(user.getUsername().equals(username)){
+                    user.changePassword(newPassword);
                 }
             }
             if(validate){

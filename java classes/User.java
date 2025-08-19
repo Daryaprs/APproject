@@ -20,4 +20,10 @@ public class User {
         return false;
     }
 
+    public String getUsername() {
+        return username;
+    }
+    public void changePassword(String newPassword){
+        this.password = newPassword;
+    }
 }

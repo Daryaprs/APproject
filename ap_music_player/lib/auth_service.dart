@@ -85,7 +85,7 @@ class AuthService {
     Socket? socket;
     try {
       socket = await Socket.connect(host, port).timeout(timeout);
-      final req = jsonEncode({"action": "get_music_file", "file_name": fileName});
+      final req = jsonEncode({"type": "get_music_file", "file_name": fileName});
       socket.write("$req\n");
       final data = await socket.first.timeout(timeout);
       final resp = jsonDecode(utf8.decode(data));

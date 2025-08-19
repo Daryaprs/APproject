@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'login_page.dart';
+import 'music_player_manager.dart';
 import 'user_info_page.dart';
 import 'playlist_page.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'dart:typed_data';
 
 class HomePage extends StatefulWidget {
   final AuthService authService;
@@ -13,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final player = MusicPlayerManager();
   List<String> musicList = [
     "آهنگ اول",
     "آهنگ دوم",
@@ -37,7 +42,6 @@ class _HomePageState extends State<HomePage> {
           .toList();
     });
   }
-
   void _addMusicFromServer() async{
     List<String> serverSongs = await widget.authService.fetchServerSongNames() ;
 
@@ -56,11 +60,11 @@ class _HomePageState extends State<HomePage> {
                   filteredList = musicList;
                 });
                 Navigator.pop(context);
-              },
+                },
             );
-          },
+            },
         );
-      },
+        },
     );
   }
 
@@ -205,6 +209,7 @@ class _HomePageState extends State<HomePage> {
                           title: Text(filteredList[index]),
                           trailing: Icon(Icons.play_arrow),
                           onTap: () {
+
                             // صفحه پخش آهنگ
                           },
                         ),

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'login_page.dart';
 import 'music_player_manager.dart';
+import 'music_player_page.dart';
 import 'user_info_page.dart';
 import 'playlist_page.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'dart:typed_data';
 
 class HomePage extends StatefulWidget {
@@ -209,7 +209,14 @@ class _HomePageState extends State<HomePage> {
                           title: Text(filteredList[index]),
                           trailing: Icon(Icons.play_arrow),
                           onTap: () {
-
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MusicPlayerPage(
+                                  songName: filteredList[index], authService: widget.authService, // مقدار الزامی پاس داده شد
+                                ),
+                              ),
+                            );
                             // صفحه پخش آهنگ
                           },
                         ),

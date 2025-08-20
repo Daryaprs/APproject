@@ -7,6 +7,7 @@ public class TcpServer {
     public static void main(String[] args) {
         int port = 3000;
         DataBaseHandler db = new DataBaseHandler();
+        FileServer fs = new FileServer();
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port " + port);
@@ -15,7 +16,7 @@ public class TcpServer {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected");
 
-                ClientHandler handler = new ClientHandler(clientSocket, db);
+                ClientHandler handler = new ClientHandler(clientSocket, db, fs);
                 handler.start();  // starts a new thread
             }
         } catch (IOException e) {

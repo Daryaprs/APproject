@@ -70,7 +70,6 @@ public class DataBaseHandler {
             for(int i=0; i<users.size(); i++){
                 JsonObject user = users.get(i).getAsJsonObject();
                 if(user.get("username").getAsString().equals(username)&&user.get("password").getAsString().equals(password)){
-                    System.out.println(user.get("username")+" "+user.get("password"));
                     return true;
                 }
             }

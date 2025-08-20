@@ -87,10 +87,19 @@ class AuthService {
       socket = await Socket.connect(host, port).timeout(timeout);
       final req = jsonEncode({"type": "get_music_file", "file_name": fileName});
       socket.write("$req\n");
-      final data = await socket.first.timeout(timeout);
-      final resp = jsonDecode(utf8.decode(data));
-      if (resp["status"] == "ok") {
-        return resp["file_data"] as String;
+      // final data = await socket.first.timeout(timeout);
+      // final resp = utf8.decode(data);
+      String response = '';
+      await for(String chunk in socket.cast<List<int>>().transform(const Utf8Decoder())){
+        response += chunk;
+        if(response.contains('\n\n')){
+          break;
+        }
+      }
+      socket.close();
+      if (response!=null && response.isNotEmpty) {
+        response = response.trim();
+        return response;
       }
       return null;
     } finally {

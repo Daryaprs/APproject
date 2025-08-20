@@ -8,10 +8,12 @@ import com.google.gson.*;
 public class ClientHandler extends Thread {
     private final Socket socket;
     private final DataBaseHandler db;
+    private final FileServer fs;
 
-    public ClientHandler(Socket socket, DataBaseHandler db) {
+    public ClientHandler(Socket socket, DataBaseHandler db, FileServer fs) {
         this.socket = socket;
         this.db = db;
+        this.fs = fs;
     }
 
     @Override
@@ -24,7 +26,6 @@ public class ClientHandler extends Thread {
             while ((request = reader.readLine()) != null) {
                 JsonObject json = JsonParser.parseString(request).getAsJsonObject();
                 String type = json.get("type").getAsString();
-
                 if (type.equals("signup")) {
                     String user = json.get("username").getAsString();
                     String pass = json.get("password").getAsString();
@@ -62,28 +63,21 @@ public class ClientHandler extends Thread {
                     writer.flush();
                 }else if(type.equals("get_music_file")){
                     String fileName = json.get("file_name").getAsString();
-                    try {
-                        File file = new File("Musics/" + fileName);
-                        if (file.exists()) {
-                            byte[] fileBytes = Files.readAllBytes(file.toPath());
-                            String base64Data = Base64.getEncoder().encodeToString(fileBytes);
-
-                            JsonObject response = new JsonObject();
-                            response.addProperty("status", "ok");
-                            response.addProperty("file_data", base64Data);
-
-                            writer.println(response);
-                        } else {
-                            JsonObject response = new JsonObject();
-                            response.addProperty("status", "error");
-                            response.addProperty("message", "File not found");
-                            writer.println(response);
+                    String song = fs.getSong(fileName);
+                    //JsonObject response = new JsonObject();
+                    if((!song.equals("fileNotFound"))&&(!song.equals("error"))) {
+                        try {
+                            writer.println(song);
+                            writer.flush();
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }catch (Exception e){
+                            System.out.println("Error: "+ e.getMessage());
                         }
-                    } catch (IOException e) {
-                        JsonObject response = new JsonObject();
-                        response.addProperty("status", "error");
-                        response.addProperty("message", "Could not read file");
-                        writer.println(response);
+                        socket.close();
                     }
                 }
                 else {

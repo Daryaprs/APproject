@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:just_audio/just_audio.dart';
+
 
 import 'auth_service.dart';
 
@@ -22,35 +22,26 @@ class MusicPlayerManager {
       currentSong = fileName;
       String? base64String = await _authService.fetchSongBase64(fileName);
       Uint8List bytes = base64Decode(base64String!);
-
-      final dir = await getTemporaryDirectory();
-      File tempFile = File('${dir.path}/$fileName');
-      await tempFile.writeAsBytes(bytes);
-
-      await _player.play(DeviceFileSource(tempFile.path));
+      await _player.setAudioSource(bytes as AudioSource);
+      _player.play();
       _isPlaying = true;
     } catch (e) {
       print("Error playing from server: $e");
     }
   }
 
-  Future<void> playLocal(File file) async {
-    try {
-      await _player.play(DeviceFileSource(file.path));
-      _isPlaying = true;
-    } catch (e) {
-      print("Error playing local: $e");
-    }
-  }
+  // Future<void> playLocal(File file) async {
+  //   try {
+  //     await _player.play(DeviceFileSource(file.path));
+  //     _isPlaying = true;
+  //   } catch (e) {
+  //     print("Error playing local: $e");
+  //   }
+  // }
 
   Future<void> pause() async {
     await _player.pause();
     _isPlaying = false;
-  }
-
-  Future<void> resume() async {
-    await _player.resume();
-    _isPlaying = true;
   }
 
   Future<void> stop() async {

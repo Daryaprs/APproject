@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'package:ap_music_player/Music.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
 import 'login_page.dart';
-import 'music_player_manager.dart';
 import 'music_player_page.dart';
 import 'user_info_page.dart';
 import 'playlist_page.dart';
@@ -10,29 +11,54 @@ import 'dart:typed_data';
 
 class HomePage extends StatefulWidget {
   final AuthService authService;
-  HomePage({required this.authService});
+  final String username;
+  HomePage({required this.authService, required this.username});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  final player = MusicPlayerManager();
-  List<String> musicList = [];
+  List<Music> listOfMusics = [];
+  List<String> musicNameList = [];
 
   List<String> filteredList = [];
   TextEditingController searchController = TextEditingController();
   bool showAddOptions = false;
 
+
+
   @override
   void initState() {
     super.initState();
-    filteredList = musicList;
+    _loadSongs();
+    filteredList = musicNameList;
+  }
+  Future<void> _loadSongs() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // final localJson = prefs.getString("songs") ?? "[]";
+    // final List localDecoded = jsonDecode(localJson);
+    // List<Music> localSongs = localDecoded.map((e) => Music.fromJson(e)).toList();
+
+    List<String> serverSongsName = await widget.authService.fetchHomePageMusicNames(widget.username);
+    List<Music> serverSongs = [];
+    for(String songName in serverSongsName){
+      Music music = Music(name: songName, filePath: "Musics/$songName");
+      serverSongs.add(music);
+    }
+
+    setState(() {
+      listOfMusics = serverSongs;
+      for(Music music in listOfMusics){
+        musicNameList.add(music.name);
+      }
+    });
   }
 
   void _filterMusic(String query) {
     setState(() {
-      filteredList = musicList
+      filteredList = musicNameList
           .where((song) => song.contains(query.trim()))
           .toList();
     });
@@ -51,8 +77,9 @@ class _HomePageState extends State<HomePage> {
               trailing: Icon(Icons.add),
               onTap: () {
                 setState(() {
-                  musicList.add(serverSongs[index]);
-                  filteredList = musicList;
+                  widget.authService.addSong(widget.username, serverSongs[index]);
+                  musicNameList.add(serverSongs[index]);
+                  filteredList = musicNameList;
                 });
                 Navigator.pop(context);
                 },

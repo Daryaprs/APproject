@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:ap_music_player/auth_service.dart';
-import 'package:ap_music_player/music_player_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:typed_data';
@@ -35,8 +34,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
       vsync: this,
       duration: const Duration(seconds: 20),
     );
-    _rotationController.repeat(); // سی‌دی همیشه بچرخه
-    _rotationController.stop();// ولی اول متوقف باشه
+    _rotationController.repeat();
+    _rotationController.stop();
 
     _audioPlayer.playerStateStream.listen((state) {
       final playing = state.playing;
@@ -60,14 +59,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
         }
       }
     });
-    /// گرفتن مدت آهنگ
+
     _audioPlayer.durationStream.listen((d) {
       if (d != null && mounted) {
         setState(() => _duration = d);
       }
     });
 
-    /// گرفتن موقعیت فعلی آهنگ
+
     _audioPlayer.positionStream.listen((p) {
       if (mounted) setState(() => _position = p);
     });
@@ -113,7 +112,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // دارک مود
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
@@ -125,7 +124,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // سی‌دی چرخان
             RotationTransition(
               turns: _rotationController,
               child: Container(
@@ -142,7 +140,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
                     ),
                   ],
                   image: const DecorationImage(
-                    image: AssetImage("assets/CDImage.png"), // عکس سی‌دی (خودت بذار تو assets)
+                    image: AssetImage("assets/CDImage.png"),
                     fit: BoxFit.cover,
                   ),
                 ),

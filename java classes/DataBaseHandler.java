@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.locks.*;
 import com.google.gson.*;
 
@@ -130,6 +132,57 @@ public class DataBaseHandler {
                 return true;
             }
             return false;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+    public JsonArray getMusicList(String username) throws IOException{
+        lock.writeLock().lock();
+        try {
+            JsonObject db = readDatabase();
+            JsonArray users = db.getAsJsonArray("users");
+            for (int i = 0; i < users.size(); i++) {
+                JsonObject user = users.get(i).getAsJsonObject();
+                if (user.get("username").getAsString().equals(username)) {
+                    if(user.has("songs")){
+                        JsonArray musics = user.getAsJsonArray("songs");
+                        return musics;
+                    }
+
+                }
+            }
+            return new JsonArray();
+
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+
+    }
+    public boolean addSong(String username, String songName) throws IOException {
+        lock.writeLock().lock();
+        try {
+            JsonObject db = readDatabase();
+            JsonArray users = db.getAsJsonArray("users");
+            for (int i = 0; i < users.size(); i++) {
+                JsonObject user = users.get(i).getAsJsonObject();
+                if (user.get("username").getAsString().equals(username)) {
+                    if(user.has("songs")){
+                        JsonArray songs = user.getAsJsonArray("songs");
+                        songs.add(songName);
+                        writeDatabase(db);
+                        return true;
+                    }else{
+                        JsonArray songs = new JsonArray();
+                        songs.add(songName);
+                        user.add("songs", songs);
+                        writeDatabase(db);
+                        return true;
+                    }
+                }
+            }
+            return false;
+
         } finally {
             lock.writeLock().unlock();
         }

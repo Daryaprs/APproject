@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Base64;
 
 public class FileServer {
@@ -20,4 +21,5 @@ public class FileServer {
         }
         return "error";
     }
+
 }

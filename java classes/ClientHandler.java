@@ -79,6 +79,14 @@ public class ClientHandler extends Thread {
                         }
                         socket.close();
                     }
+                }else if(type.equals("get_homePage_music_list")){
+                    String username = json.get("username").getAsString();
+                    writer.println(db.getMusicList(username));
+                }else if(type.equals("add_song")){
+                    String username = json.get("username").getAsString();
+                    String songName = json.get("songName").getAsString();
+                    boolean result = db.addSong(username, songName);
+                    writer.println(result ? "Added" : "NotAdded");
                 }
                 else {
                     writer.println("unknown_command");

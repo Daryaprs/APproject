@@ -51,7 +51,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     Future.delayed(Duration(seconds: 2)).then((_) => overlayEntry.remove());
   }
 
-  //این تابع به تغییرات نیاز دارد
   void _login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -263,9 +262,8 @@ class _CircleLinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    // یک خط دایره‌ای کوتاه برای نمایش چرخش
     double startAngle = 0;
-    double sweepAngle = 3.14 / 3; // 60 درجه
+    double sweepAngle = 3.14 / 3;
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     canvas.drawArc(rect, startAngle, sweepAngle, false, paint);

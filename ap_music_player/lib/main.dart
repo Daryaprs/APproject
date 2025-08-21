@@ -10,16 +10,17 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
   final loggedInUser = prefs.getBool('isLoggedIn') ?? false;
-
-  runApp(MyApp(isLoggedIn: loggedInUser));
+  final username = prefs.getString('username') ?? "";
+  runApp(MyApp(isLoggedIn: loggedInUser, Username: username));
 }
 
 
 
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;
+  final String Username;
   final authService = AuthService(host: '192.168.1.34', port: 3000);
-  MyApp({Key? key, required this.isLoggedIn}) : super(key: key);
+  MyApp({Key? key, required this.isLoggedIn, required this.Username}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(authService: authService),
         '/signup': (context) => SignupPage(authService: authService),
-        '/home': (context) => HomePage(authService: authService),
+        '/home': (context) => HomePage(authService: authService, username: Username),
       },
     );
   }

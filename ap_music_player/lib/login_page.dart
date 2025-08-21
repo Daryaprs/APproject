@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
 
     if (result == 'login_success') {
+      await AuthService.saveLogin(user.username);
       Navigator.pushReplacementNamed(context, '/home');
     } else if (result == 'login_fail') {
       showToast('Invalid username or password');

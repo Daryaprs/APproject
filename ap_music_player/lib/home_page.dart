@@ -18,12 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final player = MusicPlayerManager();
-  List<String> musicList = [
-    "آهنگ اول",
-    "آهنگ دوم",
-    "آهنگ سوم",
-    "موزیک خاص",
-  ];
+  List<String> musicList = [];
 
   List<String> filteredList = [];
   TextEditingController searchController = TextEditingController();
@@ -74,8 +69,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _logout() {
-    final authService = AuthService(host: '192.168.1.33', port: 3000);
+  Future<void> _logout() async {
+    final authService = AuthService(host: '192.168.1.34', port: 3000);
+    await AuthService.logout();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage(authService: authService)),

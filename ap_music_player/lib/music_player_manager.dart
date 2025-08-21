@@ -14,7 +14,7 @@ class MusicPlayerManager {
   String? currentSong;
   bool _isPlaying = false;
 
-  final AuthService _authService = AuthService(host: '192.168.1.33', port: 3000);
+  final AuthService _authService = AuthService(host: '192.168.1.34', port: 3000);
   MusicPlayerManager._internal();
 
   Future<void> playFromServer(String fileName) async {

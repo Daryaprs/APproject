@@ -66,6 +66,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
     String loginResult = await widget.authService.login(signupUser);
     if (_formKey.currentState!.validate()) {
       if (signupResult == 'signup_success') {
+        await AuthService.saveLogin(signupUser.username);
         Navigator.pushReplacementNamed(context, '/home');
         showDialog(
           context: context,

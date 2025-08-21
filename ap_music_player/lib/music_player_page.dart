@@ -21,7 +21,8 @@ class MusicPlayerPage extends StatefulWidget {
 
 class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProviderStateMixin {
   late AudioPlayer _audioPlayer;
-
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
   bool isPlaying = false;
   late AnimationController _rotationController;
 
@@ -35,7 +36,42 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
       duration: const Duration(seconds: 20),
     );
     _rotationController.repeat(); // سی‌دی همیشه بچرخه
-    _rotationController.stop();   // ولی اول متوقف باشه
+    _rotationController.stop();// ولی اول متوقف باشه
+
+    _audioPlayer.playerStateStream.listen((state) {
+      final playing = state.playing;
+      final completed = state.processingState == ProcessingState.completed;
+
+      if (completed) {
+        _rotationController.stop();
+        _rotationController.reset();
+        if (mounted) {
+          setState(() => isPlaying = false);
+        }
+      } else if (playing) {
+        _rotationController.repeat();
+        if (mounted) {
+          setState(() => isPlaying = true);
+        }
+      } else {
+        _rotationController.stop();
+        if (mounted) {
+          setState(() => isPlaying = false);
+        }
+      }
+    });
+    /// گرفتن مدت آهنگ
+    _audioPlayer.durationStream.listen((d) {
+      if (d != null && mounted) {
+        setState(() => _duration = d);
+      }
+    });
+
+    /// گرفتن موقعیت فعلی آهنگ
+    _audioPlayer.positionStream.listen((p) {
+      if (mounted) setState(() => _position = p);
+    });
+
   }
 
   @override
@@ -48,30 +84,30 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
   void _togglePlayPause() async {
     if (isPlaying) {
       await _audioPlayer.pause();
-      _rotationController.stop();
     } else {
-      String? base64 = await widget.authService.fetchSongBase64(widget.songName);
-      if (base64 != null) {
-        String cleanedBase64 = base64.replaceAll(RegExp(r'\s+'), '');
-        Uint8List audioBytes = base64Decode(cleanedBase64);
-        print("Audio bytes length: ${audioBytes.length}");
+      if(_audioPlayer.audioSource == null) {
+        String? base64 = await widget.authService.fetchSongBase64(
+            widget.songName);
+        if (base64 != null) {
+          String cleanedBase64 = base64.replaceAll(RegExp(r'\s+'), '');
+          Uint8List audioBytes = base64Decode(cleanedBase64);
 
-        final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/${widget.songName}.mp3');
-        await file.writeAsBytes(audioBytes, flush: true);
+          final dir = await getTemporaryDirectory();
+          final file = File('${dir.path}/${widget.songName}.mp3');
+          await file.writeAsBytes(audioBytes, flush: true);
 
-        print("Saved file path: ${file.path}");
-        print("File exists: ${await file.exists()}");
-        print("File size: ${await file.length()}");
+          await _audioPlayer.setFilePath(file.path);
 
-        await _audioPlayer.setFilePath(file.path);
-        await _audioPlayer.play();
+        }
       }
-      if(mounted) _rotationController.repeat();
+      await _audioPlayer.play();
     }
-    setState(() {
-      isPlaying = !isPlaying;
-    });
+  }
+  String _formatDuration(Duration d) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    final minutes = twoDigits(d.inMinutes.remainder(60));
+    final seconds = twoDigits(d.inSeconds.remainder(60));
+    return "$minutes:$seconds";
   }
 
   @override
@@ -113,6 +149,29 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
               ),
             ),
             const SizedBox(height: 40),
+            /// SeekBar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  Slider(
+                    value: _position.inSeconds.toDouble(),
+                    max: _duration.inSeconds.toDouble(),
+                    onChanged: (value) {
+                      final newPos = Duration(seconds: value.toInt());
+                      _audioPlayer.seek(newPos);
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(_formatDuration(_position)),
+                      Text(_formatDuration(_duration)),
+                    ],
+                  )
+                ],
+              ),
+            ),
 
             // دکمه Play / Pause
             Row(

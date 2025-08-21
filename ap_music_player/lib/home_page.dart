@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _logout() {
-    final authService = AuthService(host: '10.0.2.2', port: 3000);
+    final authService = AuthService(host: '192.168.1.33', port: 3000);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage(authService: authService)),

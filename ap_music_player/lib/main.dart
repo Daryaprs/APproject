@@ -9,7 +9,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final authService = AuthService(host: '10.0.2.2', port: 3000);
+  final authService = AuthService(host: '192.168.1.33', port: 3000);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

@@ -159,7 +159,7 @@ public class DataBaseHandler {
         }
 
     }
-    public boolean addSong(String username, String songName) throws IOException {
+    public boolean addSong(String username, Music music) throws IOException {
         lock.writeLock().lock();
         try {
             JsonObject db = readDatabase();
@@ -167,17 +167,74 @@ public class DataBaseHandler {
             for (int i = 0; i < users.size(); i++) {
                 JsonObject user = users.get(i).getAsJsonObject();
                 if (user.get("username").getAsString().equals(username)) {
+                    JsonObject song = music.toJson();
+                    song.addProperty("addedAt", System.currentTimeMillis());
+                    song.addProperty("isFavorite", false);
                     if(user.has("songs")){
                         JsonArray songs = user.getAsJsonArray("songs");
-                        songs.add(songName);
+                        for(int j=0 ; j<songs.size(); j++){
+                            if(songs.get(j).getAsJsonObject().get("name").getAsString().equals(music.getName())){
+                                return false;
+                            }
+                        }
+                        songs.add(song);
                         writeDatabase(db);
                         return true;
                     }else{
                         JsonArray songs = new JsonArray();
-                        songs.add(songName);
+                        songs.add(song);
                         user.add("songs", songs);
                         writeDatabase(db);
                         return true;
+                    }
+                }
+            }
+            return false;
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public  boolean addToFavorites(String username, Music music) throws IOException{
+        lock.writeLock().lock();
+        try {
+            JsonObject db = readDatabase();
+            JsonArray users = db.getAsJsonArray("users");
+            for (int i = 0; i < users.size(); i++) {
+                JsonObject user = users.get(i).getAsJsonObject();
+                if (user.get("username").getAsString().equals(username)) {
+                    JsonArray songs = user.getAsJsonArray("songs");
+                    for(int j=0 ; j<songs.size(); j++){
+                        if(songs.get(j).getAsJsonObject().get("name").getAsString().equals(music.getName())){
+                            songs.get(j).getAsJsonObject().addProperty("isFavorite", true);
+                            writeDatabase(db);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+    public boolean deleteSong(String username , Music music) throws IOException{
+        lock.writeLock().lock();
+        try {
+            JsonObject db = readDatabase();
+            JsonArray users = db.getAsJsonArray("users");
+            for (int i = 0; i < users.size(); i++) {
+                JsonObject user = users.get(i).getAsJsonObject();
+                if (user.get("username").getAsString().equals(username)) {
+                    JsonArray songs = user.getAsJsonArray("songs");
+                    for(int j=0 ; j<songs.size(); j++){
+                        if(songs.get(j).getAsJsonObject().get("name").getAsString().equals(music.getName())){
+                            songs.remove(i);
+                            writeDatabase(db);
+                            return true;
+                        }
                     }
                 }
             }

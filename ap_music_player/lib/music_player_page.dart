@@ -8,11 +8,17 @@ import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 
 class MusicPlayerPage extends StatefulWidget {
-  final String songName;
+  final List<String> songList;   // لیست آهنگ‌ها
+  final int initialIndex;
   final AuthService authService;
   //final String songPath;
 
-  const MusicPlayerPage({super.key, required this.songName, required this.authService});
+  const MusicPlayerPage({
+    super.key,
+    required this.songList,
+    required this.initialIndex,
+    required this.authService,
+  });
 
   @override
   State<MusicPlayerPage> createState() => _MusicPlayerPageState();
@@ -24,11 +30,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
   Duration _position = Duration.zero;
   bool isPlaying = false;
   late AnimationController _rotationController;
+  late int currentIndex;
+
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+    currentIndex = widget.initialIndex;
 
     _rotationController = AnimationController(
       vsync: this,
@@ -80,26 +89,32 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
     super.dispose();
   }
 
+  Future<void> _playMusic(String songName) async {
+    await _audioPlayer.stop();
+
+    String? base64 = await widget.authService.fetchSongBase64(songName);
+    if (base64 != null) {
+      String cleanedBase64 = base64.replaceAll(RegExp(r'\s+'), '');
+      Uint8List audioBytes = base64Decode(cleanedBase64);
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/$songName.mp3');
+      await file.writeAsBytes(audioBytes, flush: true);
+
+      await _audioPlayer.setFilePath(file.path);
+      await _audioPlayer.play();
+    }
+  }
+
   void _togglePlayPause() async {
     if (isPlaying) {
       await _audioPlayer.pause();
     } else {
-      if(_audioPlayer.audioSource == null) {
-        String? base64 = await widget.authService.fetchSongBase64(
-            widget.songName);
-        if (base64 != null) {
-          String cleanedBase64 = base64.replaceAll(RegExp(r'\s+'), '');
-          Uint8List audioBytes = base64Decode(cleanedBase64);
-
-          final dir = await getTemporaryDirectory();
-          final file = File('${dir.path}/${widget.songName}.mp3');
-          await file.writeAsBytes(audioBytes, flush: true);
-
-          await _audioPlayer.setFilePath(file.path);
-
-        }
+      if (_audioPlayer.audioSource == null) {
+        await _playMusic(widget.songList[currentIndex]);
+      } else {
+        await _audioPlayer.play();
       }
-      await _audioPlayer.play();
     }
   }
   String _formatDuration(Duration d) {
@@ -116,7 +131,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          widget.songName,
+          widget.songList[currentIndex],
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -147,6 +162,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
               ),
             ),
             const SizedBox(height: 40),
+
             /// SeekBar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -163,23 +179,31 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(_formatDuration(_position)),
-                      Text(_formatDuration(_duration)),
+                      Text(_formatDuration(_position),
+                          style: const TextStyle(color: Colors.white)),
+                      Text(_formatDuration(_duration),
+                          style: const TextStyle(color: Colors.white)),
                     ],
                   )
                 ],
               ),
             ),
 
-            // دکمه Play / Pause
+            // دکمه‌ها
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: Icon(Icons.skip_previous, color: Colors.white, size: 40),
-                  onPressed: () {},
+                  icon:
+                  Icon(Icons.skip_previous, color: Colors.white, size: 40),
+                  onPressed: () {
+                    if (currentIndex > 0) {
+                      setState(() => currentIndex--);
+                      _playMusic(widget.songList[currentIndex]);
+                    }
+                  },
                 ),
-                SizedBox(width: 30),
+                const SizedBox(width: 30),
                 IconButton(
                   icon: Icon(
                     isPlaying ? Icons.pause_circle : Icons.play_circle,
@@ -188,10 +212,15 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> with SingleTickerProv
                   ),
                   onPressed: _togglePlayPause,
                 ),
-                SizedBox(width: 30),
+                const SizedBox(width: 30),
                 IconButton(
                   icon: Icon(Icons.skip_next, color: Colors.white, size: 40),
-                  onPressed: () {},
+                  onPressed: () {
+                    if (currentIndex < widget.songList.length - 1) {
+                      setState(() => currentIndex++);
+                      _playMusic(widget.songList[currentIndex]);
+                    }
+                  },
                 ),
               ],
             ),

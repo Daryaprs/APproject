@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController searchController = TextEditingController();
   bool showAddOptions = false;
 
-
+  String _sortType = "date";
 
   @override
   void initState() {
@@ -41,18 +41,29 @@ class _HomePageState extends State<HomePage> {
     // final List localDecoded = jsonDecode(localJson);
     // List<Music> localSongs = localDecoded.map((e) => Music.fromJson(e)).toList();
 
-    List<String> serverSongsName = await widget.authService.fetchHomePageMusicNames(widget.username);
-    List<Music> serverSongs = [];
-    for(String songName in serverSongsName){
-      Music music = Music(name: songName, filePath: "Musics/$songName");
-      serverSongs.add(music);
+    List<String> homePageMusicName = [];
+    List<Music> homePageMusics = await widget.authService.fetchHomePageMusicNames(widget.username);;
+    for(Music music in homePageMusics){
+      homePageMusicName.add(music.name);
     }
 
     setState(() {
-      listOfMusics = serverSongs;
+      listOfMusics = homePageMusics;
       for(Music music in listOfMusics){
         musicNameList.add(music.name);
       }
+    });
+  }
+
+  void _applySort() {
+    setState(() {
+      if (_sortType == "date") {
+        listOfMusics.sort((a, b) => b.addedAt.compareTo(a.addedAt));
+      } else if (_sortType == "alphabet") {
+        listOfMusics.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      }
+      musicNameList = listOfMusics.map((m) => m.name).toList();
+      filteredList = musicNameList;
     });
   }
 
@@ -75,12 +86,16 @@ class _HomePageState extends State<HomePage> {
             return ListTile(
               title: Text(serverSongs[index]),
               trailing: Icon(Icons.add),
-              onTap: () {
-                setState(() {
-                  widget.authService.addSong(widget.username, serverSongs[index]);
-                  musicNameList.add(serverSongs[index]);
-                  filteredList = musicNameList;
-                });
+              onTap: () async {
+                Music music = Music(name: serverSongs[index], filePath: "Musics/${serverSongs[index]}", addedAt: DateTime.now().millisecondsSinceEpoch, isFavorite: false);
+                String response = await widget.authService.addSong(widget.username, music);
+                if(response=="Added") {
+                  setState((){
+                    musicNameList.add(serverSongs[index]);
+                    listOfMusics.add(music);
+                    filteredList = musicNameList;
+                  });
+                }
                 Navigator.pop(context);
                 },
             );
@@ -97,11 +112,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _logout() async {
-    final authService = AuthService(host: '192.168.1.34', port: 3000);
     await AuthService.logout();
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => LoginPage(authService: authService)),
+      MaterialPageRoute(builder: (context) => LoginPage(authService: widget.authService)),
     );
   }
 
@@ -152,38 +166,54 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       child: Scaffold(
-        appBar: AppBar(
-          title: Text("موزیک پلیر"),
-          actions: [
-            PopupMenuButton<int>(
-              icon: Icon(Icons.menu),
-              onSelected: (value) {
-                switch (value) {
-                  case 0:
-                    _goToUserInfo();
-                    break;
-                  case 1:
-                    _goToPlaylist();
-                    break;
-                  case 2:
-                    _toggleTheme();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(value: 0, child: Text("اطلاعات کاربری")),
-                PopupMenuItem(value: 1, child: Text("پلی‌لیست")),
-                PopupMenuItem(value: 2, child: Text("تغییر مود دارک/لایت")),
-              ],
-            ),
-            IconButton(
-              icon: Icon(Icons.logout),
-              onPressed: _logout,
-              tooltip: "خروج",
-            ),
-          ],
-        ),
-        body: Stack(
+          appBar: AppBar(
+            title: Text("موزیک پلیر"),
+            actions: [
+              PopupMenuButton<int>(
+                icon: Icon(Icons.menu),
+                onSelected: (value) {
+                  switch (value) {
+                    case 0:
+                      _goToUserInfo();
+                      break;
+                    case 1:
+                      _goToPlaylist();
+                      break;
+                    case 2:
+                      _toggleTheme();
+                      break;
+                    case 3:
+                      setState(() {
+                        _sortType = "date";
+                        _applySort();
+                      });
+                      break;
+                    case 4:
+                      setState(() {
+                        _sortType = "alphabet";
+                        _applySort();
+                      });
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 0, child: Text("اطلاعات کاربری")),
+                  PopupMenuItem(value: 1, child: Text("پلی‌لیست")),
+                  PopupMenuItem(value: 2, child: Text("تغییر مود دارک/لایت")),
+                  PopupMenuDivider(),
+                  PopupMenuItem(value: 3, child: Text("مرتب‌سازی بر اساس تاریخ")),
+                  PopupMenuItem(value: 4, child: Text("مرتب‌سازی بر اساس حروف الفبا")),
+                ],
+              ),
+              IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: _logout,
+                tooltip: "خروج",
+              ),
+            ],
+          ),
+
+          body: Stack(
           children: [
             Column(
               children: [
@@ -230,14 +260,65 @@ class _HomePageState extends State<HomePage> {
                         child: ListTile(
                           leading: Icon(Icons.music_note),
                           title: Text(filteredList[index]),
-                          trailing: Icon(Icons.play_arrow),
+                          trailing: PopupMenuButton<String>(
+                            icon: Icon(Icons.more_vert),
+                            onSelected: (value) async {
+                              if (value == 'favorite') {
+                                setState(() {
+                                  widget.authService.addToFavorites(widget.username, listOfMusics[index]);
+                                });
+                              } else if (value == 'delete') {
+                                String response = await widget.authService.deleteSong(widget.username, listOfMusics[index]);
+                                if(response == "deletedSuccessfully") {
+                                  setState(() {
+                                    musicNameList.removeAt(index);
+                                    listOfMusics.removeAt(index);
+                                    filteredList = musicNameList;
+                                  });
+                                }
+                              } else if (value == 'playlist') {
+                                print("Add to playlist: ${listOfMusics[index].name}");
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'favorite',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.favorite, color: Colors.red),
+                                    SizedBox(width: 8),
+                                    Text('افزودن به علاقه‌مندی‌ها'),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete, color: Colors.grey),
+                                    SizedBox(width: 8),
+                                    Text('حذف آهنگ'),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'playlist',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.playlist_add, color: Colors.blue),
+                                    SizedBox(width: 8),
+                                    Text('افزودن به پلی‌لیست'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MusicPlayerPage(
-                                  songName: filteredList[index], authService: widget.authService, // مقدار الزامی پاس داده شد
-                                ),
+                                builder: (context) => MusicPlayerPage(songList: filteredList, initialIndex: index, authService: widget.authService)
                               ),
                             );
                             // صفحه پخش آهنگ

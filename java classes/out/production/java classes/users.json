@@ -2,7 +2,27 @@
   "users": [
     {
       "username": "darya1384@gmail.com",
-      "password": "Darya1234"
+      "password": "Darya1234",
+      "songs": [
+        {
+          "name": "Kiss of Death CD 1 TRACK 7 (320).mp3",
+          "filePath": "Musics/Kiss of Death CD 1 TRACK 7 (320).mp3",
+          "addedAt": 1756151319641,
+          "isFavorite": false
+        },
+        {
+          "name": "No Clear Mind - Dream Is Destiny.mp3",
+          "filePath": "Musics/No Clear Mind - Dream Is Destiny.mp3",
+          "addedAt": 1756152113626,
+          "isFavorite": false
+        },
+        {
+          "name": "Radio Tehran - Bahar.mp3",
+          "filePath": "Musics/Radio Tehran - Bahar.mp3",
+          "addedAt": 1756155274125,
+          "isFavorite": true
+        }
+      ]
     }
   ]
 }

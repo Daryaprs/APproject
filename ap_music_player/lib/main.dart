@@ -19,7 +19,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;
   final String Username;
-  final authService = AuthService(host: '192.168.1.34', port: 3000);
+  final authService = AuthService(host: '192.168.1.36', port: 3000);
   MyApp({Key? key, required this.isLoggedIn, required this.Username}) : super(key: key);
 
   @override

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'Music.dart';
 import 'User.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,7 +69,7 @@ class AuthService {
     Socket? socket;
     try {
       socket = await Socket.connect(host, port).timeout(timeout);
-      final req = jsonEncode({"type": "get_music_list"});
+      final req = jsonEncode({"type": "get_serverMusic_list"});
       socket.write("$req\n");
       final data = await socket.first.timeout(timeout);
       final response = jsonDecode(utf8.decode(data));
@@ -107,28 +108,37 @@ class AuthService {
       socket?.destroy();
     }
   }
-  Future<List<String>> fetchHomePageMusicNames(String username, {Duration timeout = const Duration(seconds: 5)}) async {
+  Future<List<Music>> fetchHomePageMusicNames(String username, {Duration timeout = const Duration(seconds: 5)}) async {
     Socket? socket;
     try {
       socket = await Socket.connect(host, port).timeout(timeout);
       final req = jsonEncode({"type": "get_homePage_music_list", "username": username});
       socket.write("$req\n");
-      final data = await socket.first.timeout(timeout);
-      final response = jsonDecode(utf8.decode(data));
-      final list = (response as List).map((e) => e as String).toList();
+      // final response = await socket
+      //     .transform(utf8.decoder)
+      //     .transform(LineSplitter())
+      //     .first;
+      // final data = jsonDecode(response) as List<dynamic>;
+      // final list = data.map((i) => Music.fromJson(i)).toList();
+      final data = await socket
+          .cast<List<int>>()
+          .transform(utf8.decoder)
+          .transform(LineSplitter())
+          .timeout(timeout).first;
+      final response = jsonDecode(data) as List<dynamic>;
+      final list = response.map((item) => Music.fromJson(item)).toList();
       return list;
 
-      return [];
     } finally {
       socket?.destroy();
     }
   }
 
-  Future<String> addSong(String username, String songName, {Duration timeout = const Duration(seconds: 5)}) async {
+  Future<String> addSong(String username, Music music, {Duration timeout = const Duration(seconds: 5)}) async {
     Socket? socket;
     try {
       socket = await Socket.connect(host, port).timeout(timeout);
-      final req = jsonEncode({"type": "add_song", "username": username, "songName": songName});
+      final req = jsonEncode({"type": "add_song", "username": username, "music": music.toJson()});
       socket.write("$req\n");
       final data = await socket.first.timeout(timeout);
       final response = utf8.decode(data).trim();
@@ -143,7 +153,44 @@ class AuthService {
       socket?.destroy();
     }
   }
-
+  Future<String> addToFavorites(String username, Music music, {Duration timeout = const Duration(seconds: 5)})async{
+    Socket? socket;
+    try{
+      socket = await Socket.connect(host, port).timeout(timeout);
+      final req = jsonEncode({"type": "add_to_favorites","username": username, "music": music.toJson()});
+      socket.write("$req\n");
+      final data = await socket.first.timeout(timeout);
+      final response = utf8.decode(data).trim();
+      return response;
+    }on TimeoutException{
+      return 'timeout';
+    }catch (e){
+      debugPrint('AuthService addToFavorites error: $e');
+      return 'error';
+    }
+    finally {
+      socket?.destroy();
+    }
+  }
+  Future<String> deleteSong(String username , Music music, {Duration timeout = const Duration(seconds: 5)})async{
+    Socket? socket;
+    try{
+      socket = await Socket.connect(host, port).timeout(timeout);
+      final req = jsonEncode({"type": "delete_song" ,"username": username, "music": music.toJson()});
+      socket.write("$req\n");
+      final data = await socket.first.timeout(timeout);
+      final response = utf8.decode(data).trim();
+      return response;
+    }on TimeoutException{
+      return 'timeout';
+    }catch (e){
+      debugPrint('AuthService deleteSong error: $e');
+      return 'error';
+    }
+    finally {
+      socket?.destroy();
+    }
+  }
   static Future<void> saveLogin(String username) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);

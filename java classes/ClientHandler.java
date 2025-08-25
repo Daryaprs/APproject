@@ -46,7 +46,7 @@ public class ClientHandler extends Thread {
                     String newPass = json.get("new_password").getAsString();
                     boolean result = db.changePassword(user, newPass);
                     writer.println(result ? "change_success" : "change_fail");
-                }else if(type.equals("get_music_list")){
+                }else if(type.equals("get_serverMusic_list")){
                     File musicFolder = new File("Musics");
                     String[] files = musicFolder.list((dir, name) -> name.endsWith(".mp3"));
                     if (files == null) files = new String[0];
@@ -82,11 +82,25 @@ public class ClientHandler extends Thread {
                 }else if(type.equals("get_homePage_music_list")){
                     String username = json.get("username").getAsString();
                     writer.println(db.getMusicList(username));
+                    writer.flush();
                 }else if(type.equals("add_song")){
                     String username = json.get("username").getAsString();
-                    String songName = json.get("songName").getAsString();
-                    boolean result = db.addSong(username, songName);
+                    Music music = Music.fromJson(json.getAsJsonObject("music"));
+                    boolean result = db.addSong(username, music);
                     writer.println(result ? "Added" : "NotAdded");
+                }else if(type.equals("add_to_favorites")){
+                    String username = json.get("username").getAsString();
+                    Music music = Music.fromJson(json.getAsJsonObject("music"));
+                    boolean result = db.addToFavorites(username, music);
+                    writer.println(result? "AddedToFavorites" : "NotAdded");
+                    writer.flush();
+                }else if(type.equals("delete_song")){
+                    String username = json.get("username").getAsString();
+                    Music music = Music.fromJson(json.getAsJsonObject("music"));
+                    boolean result = db.deleteSong(username, music);
+
+                    writer.println(result? "deletedSuccessfully" : "deleteFailed");
+                    writer.flush();
                 }
                 else {
                     writer.println("unknown_command");

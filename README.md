@@ -57,7 +57,7 @@
  📸 Screenshots  
 
 ### 🔐 Authentication
-<img src="!https://github.com/user-attachments/assets/83e4b34e-f74a-42eb-bbc1-ba222b516bbe" width="250" />
+<img src="https://github.com/user-attachments/assets/83e4b34e-f74a-42eb-bbc1-ba222b516bbe" width="250" />
 
 ### 🏠 Home Page
 <img src="https://user-images.githubusercontent.com/1234567/home.png" width="250" />

@@ -66,7 +66,7 @@
 
 
 ### 🎶 Music Player
-<img src="https://user-images.githubusercontent.com/1234567/player.png" width="250" />
+<img src="https://github.com/user-attachments/assets/800fdb28-bedd-4396-80fe-11c65125da6a" width="250" />
 
 ### 📂 Playlist Page
 <img src="https://user-images.githubusercontent.com/1234567/playlist.png" width="250" />

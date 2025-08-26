@@ -57,7 +57,7 @@
  📸 Screenshots  
 
 ### 🔐 Login and Signup 
-<img src="https://github.com/user-attachments/assets/83e4b34e-f74a-42eb-bbc1-ba222b516bbe" width="250" />
+<img src="https://github.com/user-attachments/assets/83e4b34e-f74a-42eb-bbc1-ba222b516bbe" width="250" high="250" />
 <img src="https://github.com/user-attachments/assets/0d27c620-dd05-4db2-8eab-537184607993" width="250" />
 
 ### 🏠 Home Page

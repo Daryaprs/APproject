@@ -56,20 +56,22 @@
 
  📸 Screenshots  
 
-### Authentication  
-![Login](assets/login.png)
+### 🔐 Authentication
+<img src="!https://github.com/user-attachments/assets/83e4b34e-f74a-42eb-bbc1-ba222b516bbe" width="250" />
 
-### Home Page  
-![Home](assets/home.png)
+### 🏠 Home Page
+<img src="https://user-images.githubusercontent.com/1234567/home.png" width="250" />
 
-### Music Player  
-![Player]()
+### 🎶 Music Player
+<img src="https://user-images.githubusercontent.com/1234567/player.png" width="250" />
 
-
-###
-![Playlist](assets/playlist.png)
+### 📂 Playlist Page
+<img src="https://user-images.githubusercontent.com/1234567/playlist.png" width="250" />
 
 ---
-Authors
-ParyaParsaei
-Niloufar Mohammadnejhad
+
+👩‍💻 Author  
+**Niloufar Mohammadnezhad**  
+Student Code: 12345678  
+
+---

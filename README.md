@@ -63,7 +63,7 @@
 ![Home](assets/home.png)
 
 ### Music Player  
-![Player](https://github.com/user-attachments/assets/1df1bb14-5f9d-4c43-b4b4-940f72acb304)
+![Player]()
 
 
 ###

@@ -57,11 +57,13 @@
  📸 Screenshots  
 
 ### 🔐 Login and Signup 
-<img src="https://github.com/user-attachments/assets/83e4b34e-f74a-42eb-bbc1-ba222b516bbe" width="250" high="250" />
+<img src="https://github.com/user-attachments/assets/83e4b34e-f74a-42eb-bbc1-ba222b516bbe" width="250" />
 <img src="https://github.com/user-attachments/assets/0d27c620-dd05-4db2-8eab-537184607993" width="250" />
 
 ### 🏠 Home Page
-<img src="https://user-images.githubusercontent.com/1234567/home.png" width="250" />
+<img src="https://github.com/user-attachments/assets/b8d73b44-909c-42dd-af2f-c4afb2be68e7" width="250" />
+<img src="https://github.com/user-attachments/assets/53a463d0-fa27-4ef0-96a6-e8396f006d1b" width="250" />
+
 
 ### 🎶 Music Player
 <img src="https://user-images.githubusercontent.com/1234567/player.png" width="250" />
